@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+      src="data/dataPhrases_Append_List.js"
+      type="text/javascript"
+    ></script>
+    <script src="data/dataWordsArr.js" type="text/javascript"></script>
+    <script src="data/userWordsKnown.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+
+  <body>
+    <div id="myForm">
+      <form action="">
+        <p>Show me</p>
+        <textarea
+          id="phrasesToStudy"
+          name="phrasesToStudy"
+          rows="1"
+          cols="2"
+        ></textarea>
+        <p>phrases</p>
+        <p>containing</p>
+        <textarea
+          id="wordsToStudy"
+          name="wordsToStudy"
+          rows="1"
+          cols="2"
+        ></textarea>
+        <p>new words.</p>
+        <br />
+        <br />
+        <label for="percentageOfNewWords"
+          >Percentage of new words in each phrase:</label
+        >
+        <select
+          id="percentageOfNewWords"
+          name="percentageOfNewWords"
+          id="percentageOfNewWords"
+        >
+          <option value="0">0%</option>
+          <option value="25">15%</option>
+          <option value="25">25%</option>
+          <option value="50">50%</option>
+        </select>
+        <br />
+        <br />
+
+        <div id="buttons">
+          <input id="generateBtn" type="button" value="START" />
+          <input type="reset" value="CLEAR" />
+          
+        </div>
+      </form>
+    </div>
+
+    <script src="scripts/generatePhrases.js"></script>
+  </body>
+</html>
