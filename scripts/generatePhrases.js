@@ -1,119 +1,114 @@
-$("#generateBtn").click(function () {
-  /*
-    Step 1:
-  */
+// $(document).onready(() => {});
+
+$(document).ready(function () {
+  $(document).keyup(function (event) {
+    if (
+      event.keyCode === 13 &&
+      $(':input[type="button"]').attr("disabled") != false
+    ) {
+      $("#startBtn").click();
+    }
+  });
+
+  $(':input[type="button"]').prop("disabled", true);
+
+  $("#numberOfPhrases").bind("change paste keyup", function () {
+    if ($("#numberOfWords").val() != "") {
+      $(':input[type="button"]').prop("disabled", false);
+    }
+
+    if ($(this).val() == "") {
+      $(':input[type="button"]').prop("disabled", true);
+    }
+  });
+
+  $("#numberOfWords").bind("change paste keyup", function () {
+    if ($("#numberOfPhrases").val() != "") {
+      $(':input[type="button"]').prop("disabled", false);
+    }
+
+    if ($(this).val() == "") {
+      $(':input[type="button"]').prop("disabled", true);
+    }
+  });
+});
+
+$("#startBtn").click(() => {
+  getResult();
+});
+
+function getResult() {
+  console.clear();
   //take input from user
-  let inputPhrasesToStudy = $("#phrasesToStudy").val();
-  let inputWordsToStudy = $("#wordsToStudy").val();
-  let inputPercentageOfNewWords = $("#percentageOfNewWords").val();
+  let requiredNumberOfPhrases = $("#numberOfPhrases").val();
+  let requiredNumberOfWords = $("#numberOfWords").val();
+  let requiredPercentage = $("#percentage").val();
   //define session arrays
-  let currentSessionPhrases = new Array();
-  let currentSessionWords = new Array();
+  let sessionPhrases = new Array();
+  let sessionWords = new Array();
+  // console.log(requiredNumberOfWords + " " + requiredNumberOfWords + " " + requiredPercentage + "%");
 
-  /*
-    Step 2:
-  */
-  for (let i = 0; i < dataPhrases_Append_List.length; i++) {
-    let tempListOfOPhrases = [];
-    let tempListOfWords = [];
+  let tempPhrases = [];
+  let tempNewWords = [];
 
-    if (currentSessionWords.length == inputWordsToStudy) {
-      //you are done
-      window.alert("You have all the words you need");
-      break;
-    } else if (currentSessionPhrases.length == inputPhrasesToStudy) {
-      // you are done
-      window.alert("You have all the phrases you need");
-      break;
-    } else {
-      //Step A
-      tempListOfOPhrases.push({
-        ID: dataPhrases_Append_List[i].ID,
-        SourceLanguagePhrase: dataPhrases_Append_List[i].SourceLanguagePhrase,
-        TargetLanguagePhrase: dataPhrases_Append_List[i].TargetLanguagePhrase,
-      });
+  phrasesArray.forEach((phrase) => {
+    if (
+      tempNewWords.length == requiredNumberOfWords ||
+      tempPhrases.length == requiredNumberOfPhrases
+    ) {
+      // alert("done.");
+      return false;
+    }
 
-      console.log(tempListOfOPhrases);
+    let words = phrase.TargetLanguagePhrase.split(
+      new RegExp("\\s|\\?|\\.|\\!|,")
+    );
+    //remove empty words
+    words.forEach((word) => {
+      if (word == "") {
+        words.splice(words.indexOf(word), 1);
+      }
+    });
 
-      //Step B
-      for (let j = 0; j < currentSessionPhrases.length; j++) {
-        //step C
-        if (
-          tempListOfOPhrases.TargetLanguagePhrase !==
-          currentSessionPhrases[j].TargetLanguagePhrase
-        ) {
-          //Step 3
-          for (let k = 0; k < tempListOfOPhrases.length; k++) {
-            let wordsFromPhrase = tempListOfOPhrases[
-              k
-            ].TargetLanguagePhrase.split(new RegExp("\\s"));
-            wordsFromPhrase.forEach((currWord) => {
-              tempListOfWords.push({
-                ID: tempListOfOPhrases[k].TargetLanguagePhrase,
-                Word: currWord,
-                Match: "0",
-              });
-            });
-            // console.log(wordsFromPhrase);
-          }
-          //Step 4
-          let tempNoMatchWords;
-          let tempMatchWords;
-          let tempTotalWords;
-
-          tempListOfWords.forEach((element) => {
-            for (let z = 0; z < dataWordsArr.length; z++) {
-              if (element.Word === dataWordsArr.Word[z]) {
-                element.Match = "1";
-              }
-            }
-          });
-
-          tempTotalWords = tempListOfWords.length;
-          tempListOfWords.forEach((element) => {
-            if (element.Match == "1") {
-              tempMatchWords++;
-            }
-            if (element.Match == "0") {
-              tempNoMatchWords++;
-            }
-            tempTotalWords++;
-          });
-
-          if (tempNoMatchWords == 0) {
-            tempListOfWords = [];
-            tempListOfOPhrases.splice(i, 1);
-            tempTotalWords = 0;
-          } else {
-            let tempPercentageOfNewsWords =
-              (tempNoMatchWords / tempTotalWords) * 100;
-            if (tempPercentageOfNewsWords >= inputPercentageOfNewWords) {
-              currentSessionPhrases.push({
-                ID: dataPhrases_Append_List[i].ID,
-                SourceLanguagePhrase:
-                  dataPhrases_Append_List[i].SourceLanguagePhrase,
-                TargetLanguagePhrase:
-                  dataPhrases_Append_List[i].TargetLanguagePhrase,
-              });
-            } else {
-              console.log("TO-DO later");
-            }
-            tempListOfWords.forEach((element) => {
-              currentSessionWords.push({
-                ID: element.ID,
-                Word: element.Word,
-                Match: element.Match,
-              });
-            });
-            currentSessionWords = currentSessionWords.filter(
-              (value, index) => words.indexOf(value) === index
-            );
-
-            tempListOfOPhrases = [];
-            tempListOfWords = [];
-          }
+    let newWordsInPhrase = 0;
+    words.forEach((word) => {
+      for (let j = 0; j < userKnownWords.length; j++) {
+        if (userKnownWords[j].Word == word) {
+          newWordsInPhrase++;
+          tempNewWords.concat(word);
         }
       }
+    });
+    // remove duplicates from phrase (if any)
+    words.filter((word, index) => {
+      words.indexOf(word) === index;
+    });
+    // then we calculate percentage of new words in phrase
+    percentageOfNewWords = (newWordsInPhrase / words.length) * 100;
+
+    // remove duplicates from all found new words
+    tempNewWords.filter((tempNewWords, index) => {
+      tempNewWords.indexOf(tempNewWords) === index;
+    });
+
+    if (percentageOfNewWords == requiredPercentage) {
+      tempPhrases.push({
+        ID: phrase.ID,
+        SourceLanguagePhrase: phrase.SourceLanguagePhrase,
+        TargetLanguagePhrase: phrase.TargetLanguagePhrase,
+      });
+      console.log(
+        "phrase: " +
+          phrase.TargetLanguagePhrase +
+          "\n" +
+          "words: " +
+          words +
+          "\nnew words: " +
+          tempNewWords +
+          "\npercentage of new words: " +
+          percentageOfNewWords
+      );
     }
-  }
-});
+  });
+  console.log(tempPhrases);
+}
