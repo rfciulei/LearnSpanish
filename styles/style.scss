@@ -14,3 +14,17 @@
 p {
   display: inline-block;
 }
+strong {
+  margin-left: 5px;
+  margin-right: 5px;
+  display: inline-block;
+}
+div .sentence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  border: 1px solid black;
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
