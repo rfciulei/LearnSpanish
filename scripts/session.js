@@ -1,15 +1,7 @@
-// $(document).onready(() => {});
-
 $(document).ready(function () {
-  // $(document).keyup(function (event) {
-  //   if (
-  //     event.keyCode === 13 &&
-  //     $(':input[type="button"]').attr("disabled") != false
-  //   ) {
-  //     getResult();
-  //   }
-  // });
-
+  /*
+    Setting some properties for the buttons
+  */
   $(':input[type="button"]').prop("disabled", true);
 
   $("#numberOfPhrases").bind("change paste keyup", function () {
@@ -31,29 +23,30 @@ $(document).ready(function () {
       $(':input[type="button"]').prop("disabled", true);
     }
   });
+
+  $("#startBtn").click(() => {
+    updateSession();
+  });
+
+  $("#clear").click(() => {
+    $("#result").empty();
+  });
 });
 
-$("#startBtn").click(() => {
-  getResult();
-});
-/*
-  Observation:
-    For the specified desired output, a general list of words is not needed.
-    Simply, the words the user already knows and enough phrases.
-*/
-function getResult() {
-  //take input from user
+function updateSession() {
+  //define session arrays
+  let sessionPhrases = [];
+  let sessionWords = [];
+
   let requiredNumberOfPhrases = $("#numberOfPhrases").val();
   let requiredNumberOfWords = $("#numberOfWords").val();
   let requiredPercentage = $("#percentage").val();
-  //define session arrays
-  let sessionPhrases = new Array();
-  let sessionWords = new Array();
 
   for (let i = 0; i < phrasesArray.length; i++) {
-    let newWordsInPhrase = [];
     let phrase = phrasesArray[i];
+    let newWordsInPhrase = [];
 
+    //stop whenever first 2 criteria are met
     if (
       sessionWords.length == requiredNumberOfWords ||
       sessionPhrases.length == requiredNumberOfPhrases
@@ -61,8 +54,10 @@ function getResult() {
       // alert("done");
       break;
     }
-    let words = getWordsFromSentence(phrase.TargetLanguagePhrase);
 
+    // for each phrase we get we will separate all the words
+    let words = getWordsFromSentence(phrase.TargetLanguagePhrase);
+    // and then we find the new words in the phrase and we count them
     let numberOfNewWordsInPhrase = 0;
     words.forEach((word) => {
       if (isWordAlreadyKnown(word)) {
@@ -72,25 +67,23 @@ function getResult() {
     });
     // we calculate percentage of new words in phrase
     percentageOfNewWords = (numberOfNewWordsInPhrase / words.length) * 100;
-
     //it's possible the same new word is present multiple time in a sentence
     newWordsInPhrase = newWordsInPhrase.filter((item) => item);
 
-    let flag = false;
-    for (let j = 0; j < newWordsInPhrase.length; j++) {
-      if (!sessionWords.includes([j])) {
-        flag = true;
-        break;
-      }
-    }
-    if (percentageOfNewWords == requiredPercentage && flag == true) {
-      console.log(sessionWords);
+    // let flag = false;
+    // for (let j = 0; j < newWordsInPhrase.length; j++) {
+    //   if (!sessionWords.includes([j])) {
+    //     flag = true;
+    //     break;
+    //   }
+    // }
+    if (percentageOfNewWords == requiredPercentage) {
       for (let j = 0; j < newWordsInPhrase.length; j++) {
         if (!sessionWords.includes(newWordsInPhrase[j])) {
           sessionWords.push({
             ID: "",
             Word: newWordsInPhrase[j],
-            Match: "",
+            Match: "1",
           });
         }
       }
@@ -100,7 +93,12 @@ function getResult() {
         TargetLanguagePhrase: phrase.TargetLanguagePhrase,
       });
     }
+  }
+  plotSentences(sessionPhrases, sessionWords);
+}
 
+function plotSentences(sessionPhrases, sessionWords) {
+  if (sessionPhrases.length > 0) {
     $("#result").empty();
     sessionPhrases.forEach((p) => {
       var $e = $(
@@ -115,36 +113,22 @@ function getResult() {
       $e.addClass("sentence");
       $("#result").append($e);
     });
+
+    if (sessionWords.length != 0) {
+      let w = [];
+      for (let j = 0; j < sessionWords.length; j++) {
+        w.push(sessionWords[j].Word);
+      }
+
+      $("p").wrapInTag({
+        tag: "strong",
+        words: w,
+      });
+    }
   }
-
-  //highlight all session words
-  for (let i = 0; i < sessionWords.length; i++) {
-    $("p").wrapInTag({
-      tag: "strong",
-      words: [sessionWords[i].Word],
-    });
+  if (sessionPhrases.length == 0) {
+    $("#result").empty();
   }
-}
-
-$.fn.wrapInTag = function (opts) {
-  var tag = opts.tag || "strong",
-    words = opts.words || [],
-    regex = RegExp(words.join("|"), "gi"), // case insensitive
-    replacement = "<" + tag + ">$&</" + tag + ">";
-
-  return this.html(function () {
-    return $(this).text().replace(regex, replacement);
-  });
-};
-
-//must redo
-//attention to regex for multiple languages !!
-function getWordsFromSentence(sentence) {
-  let words = sentence.split(new RegExp("\\s|\\?|\\.|\\!|\\,"));
-  //empty spaces
-  words = words.filter((word) => word);
-
-  return words;
 }
 
 function isWordAlreadyKnown(word) {
@@ -154,15 +138,4 @@ function isWordAlreadyKnown(word) {
     }
   }
   return false;
-}
-
-function removeDuplicatesAndEmptyString(items) {
-  var uniqueItems = [];
-  $.each(items, function (i, el) {
-    if ($.inArray(el, uniqueItems) === -1) uniqueItems.push(el);
-  });
-
-  uniqueItems = uniqueItems.filter((item) => item);
-
-  return uniqueItems;
 }
